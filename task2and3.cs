@@ -7,7 +7,6 @@ class Program
         Money amount1 = Money.ReadFromConsole();
         Money amount2 = Money.ReadFromConsole();
 
-        // Примеры использования операторов
         Console.WriteLine("\nРезультаты операций:");
         Console.WriteLine($"Сумма 1: {amount1}");
         Console.WriteLine($"Сумма 2: {amount2}");
@@ -16,13 +15,11 @@ class Program
         Console.WriteLine($"Сумма 1 + 50 руб: {amount1 + 50}");
         Console.WriteLine($"100 руб - Сумма 1: {100 - amount1}");
 
-        // Примеры унарных операторов
         Money incremented = ++amount1;
         Console.WriteLine($"\nУнарный ++: {incremented}");
         Money decremented = --amount2;
         Console.WriteLine($"Унарный --: {decremented}");
 
-        // Примеры приведения типов
         uint rubles = (uint)amount1;
         double kopeksAsDouble = (double)amount2;
         Console.WriteLine($"\nПриведение к uint: {rubles} руб.");
@@ -38,118 +35,9 @@ class Program
 
 
 
-// Класс для представления денежной величины
-using Input_Validation;
-
-public class Money
-{
-    public uint rubles;
-    public byte kopeks;
-
-    public Money() { rubles = 0; kopeks = 0; }
-    public Money(uint rubles, byte kopeks)
-    {
-        if (kopeks > 99)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"Копеек {kopeks} превышает 99. Установлено 99.");
-            Console.ResetColor();
-            this.kopeks = 99;
-        }
-        else this.kopeks = kopeks;
-        this.rubles = rubles;
-    }
-
-    // Унарные операторы
-    public static Money operator ++(Money m)
-    {
-        byte newKopeks = (byte)(m.kopeks + 1);
-        if (newKopeks == 100)
-            return new Money(m.rubles + 1, 0);
-        else
-            return new Money(m.rubles, newKopeks);
-    }
-
-    public static Money operator --(Money m)
-    {
-        if (m.kopeks == 0)
-        {
-            if (m.rubles > 0)
-                return new Money(m.rubles - 1, 99);
-            else
-                return new Money(0, 0);
-        }
-        else
-            return new Money(m.rubles, (byte)(m.kopeks - 1));
-    }
-
-    // Операторы приведения типов
-    public static implicit operator uint(Money m) => m.rubles;
-    public static explicit operator double(Money m) => m.kopeks / 100.0;
-
-    // Бинарные операторы
-    public static Money operator +(Money m1, Money m2)
-    {
-        long totalKopeks = (long)m1.rubles * 100 + m1.kopeks + (long)m2.rubles * 100 + m2.kopeks;
-        uint rub = (uint)(totalKopeks / 100);
-        byte kop = (byte)(totalKopeks % 100);
-        return new Money(rub, kop);
-    }
-
-    public static Money operator -(Money m1, Money m2)
-    {
-        long difference = (long)m1.rubles * 100 + m1.kopeks - (long)m2.rubles * 100 - m2.kopeks;
-        if (difference < 0) return new Money(0, 0);
-        else return new Money((uint)(difference / 100), (byte)(difference % 100));
-    }
-
-    public static Money operator +(Money m, uint rub)
-        => new Money(m.rubles + rub, m.kopeks);
-    public static Money operator +(uint rub, Money m)
-        => new Money(rub + m.rubles, m.kopeks);
-
-    public static Money operator -(Money m, uint rub)
-    {
-        long totalKopeks = (long)m.rubles * 100 + m.kopeks - (long)rub * 100;
-        if (totalKopeks < 0) return new Money(0, 0);
-        else return new Money((uint)(totalKopeks / 100), (byte)(totalKopeks % 100));
-    }
-
-    public static Money operator -(uint rub, Money m)
-    {
-        long totalKopeks = (long)rub * 100 - (long)m.rubles * 100 - m.kopeks;
-        if (totalKopeks < 0) return new Money(0, 0);
-        else return new Money((uint)(totalKopeks / 100), (byte)(totalKopeks % 100));
-    }
-
-    // Метод ввода
-    public static Money ReadFromConsole()
-    {
-        Console.WriteLine("Введите сумму (рубли и копейки):");
-        uint rubles = InputValidation.InputUintWithValidation("Рубли: ");
-        byte kopeks = InputValidation.InputByteWithValidation("Копейки (0-99): ", 0, 99);
-        return new Money(rubles, kopeks);
-    }
-
-    // Переопределение ToString()
-    public override string ToString() => $"{rubles} руб. {kopeks:D2} коп.";
-}
-
-
-
-
-
-
-
-
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-// Класс для проверки ввода
+/// <summary>
+/// Класс для проверки ввода
+/// <summary>
 namespace Input_Validation
 {
     public static class InputValidation
@@ -266,3 +154,169 @@ namespace Input_Validation
         }
     }
 }
+
+
+
+
+
+/// Класс для представления денежной величины
+using Input_Validation;
+
+public class Money
+{
+    private uint _rubles;
+    private byte _kopeks;
+
+    public uint rubles
+    {
+        get { return _rubles; }
+        set { _rubles = value; }
+    }
+
+    public byte kopeks
+    {
+        get { return _kopeks; }
+        set
+        {
+            if (value > 99)
+            {
+                Console.WriteLine($"Копеек {value} превышает 99. Установлено 99.");
+                _kopeks = 99;
+            }
+            else
+                _kopeks = value;
+        }           
+    }
+    /// <summary>
+    /// Пустой конструктор инициализирует нулевыми значениями
+    /// </summary>
+    /// <param name="rubles"></param>
+    /// <param name="kopeks"></param>
+    
+    public Money(uint rubles, byte kopeks)
+    {
+        // if (kopeks > 99)
+        //  {
+        //     Console.ForegroundColor = ConsoleColor.Red;
+        //     Console.WriteLine($"Копеек {kopeks} превышает 99. Установлено 99.");
+        //     Console.ResetColor();
+        //    this.kopeks = 99;
+        //  }
+        //else
+        this.kopeks = kopeks;
+        this.rubles = rubles;
+    }
+
+    /// <summary>
+    /// Унарные операторы
+    /// </summary>
+    /// <param name="m"></param>
+    /// <returns></returns>
+    /// Перегруженный оператор инкремента
+    public static Money operator ++(Money m)
+    {
+        byte newKopeks = (byte)(m.kopeks + 1);
+        if (newKopeks == 100)
+            return new Money(m.rubles + 1, 0);
+        else
+            return new Money(m.rubles, newKopeks);
+    }
+    /// <summary>
+    /// Перегруженный оператор декремента
+    /// </summary>
+    /// <param name="m"></param>
+    /// <returns></returns>
+    public static Money operator --(Money m)
+    {
+        if (m.kopeks == 0)
+        {
+            if (m.rubles > 0)
+                return new Money(m.rubles - 1, 99);
+            else
+                return new Money(0, 0);
+        }
+        else
+            return new Money(m.rubles, (byte)(m.kopeks - 1));
+    }
+
+    /// <summary>
+    /// Операторы приведения типов
+    /// </summary>
+    /// <param name="m"></param>
+    public static implicit operator uint(Money m)
+    {
+        return m.rubles;
+    }
+    public static explicit operator double(Money m)
+    {
+        return (double)m.kopeks / 100.0;
+    }
+
+    /// <summary>
+    /// Бинарные операторы
+    /// </summary>
+    /// <param name="m1"></param>
+    /// <param name="m2"></param>
+    /// <returns></returns>
+    public static Money operator +(Money m1, Money m2)
+    {
+        long totalKopeks = (long)m1.rubles * 100 + m1.kopeks + (long)m2.rubles * 100 + m2.kopeks;
+        uint rub = (uint)(totalKopeks / 100);
+        byte kop = (byte)(totalKopeks % 100);
+        return new Money(rub, kop);
+    }
+
+    public static Money operator -(Money m1, Money m2)
+    {
+        long difference = (long)m1.rubles * 100 + m1.kopeks - (long)m2.rubles * 100 - m2.kopeks;
+        if (difference < 0) return new Money(0, 0);
+        else return new Money((uint)(difference / 100), (byte)(difference % 100));
+    }
+
+    public static Money operator +(Money m, uint rub)
+    {
+        return new Money(m.rubles + rub, m.kopeks);
+    }
+    public static Money operator +(uint rub, Money m)
+    {
+        return new Money(rub + m.rubles, m.kopeks);
+    }
+
+    public static Money operator -(Money m, uint rub)
+    {
+        long totalKopeks = (long)m.rubles * 100 + m.kopeks - (long)rub * 100;
+        if (totalKopeks < 0) return new Money(0, 0);
+        else return new Money((uint)(totalKopeks / 100), (byte)(totalKopeks % 100));
+    }
+
+    public static Money operator -(uint rub, Money m)
+    {
+        long totalKopeks = (long)rub * 100 - (long)m.rubles * 100 - m.kopeks;
+        if (totalKopeks < 0) return new Money(0, 0);
+        else return new Money((uint)(totalKopeks / 100), (byte)(totalKopeks % 100));
+    }
+
+    /// <summary>
+    /// Метод ввода
+    /// </summary>
+    /// <returns></returns>
+    public static Money ReadFromConsole()
+    {
+        Console.WriteLine("Введите сумму (рубли и копейки):");
+        uint rubles = InputValidation.InputUintWithValidation("Рубли: ");
+        byte kopeks = InputValidation.InputByteWithValidation("Копейки (0-99): ", 0, 99);
+        return new Money(rubles, kopeks);
+    }
+
+    /// </summary>
+    /// Переопределение ToString()
+    /// </summary>
+    public override string ToString()
+    {
+        return $"{rubles} руб. {kopeks:D2} коп.";
+    }
+}
+
+
+
+
